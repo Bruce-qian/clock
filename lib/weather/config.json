@@ -1,0 +1,11 @@
+{
+  "location": {
+    "longitude" : "经度",
+    "latitude" : "纬度"
+    },
+  "url": {
+    "realtimeurl": "https://api.caiyunapp.com/v2.5/token/location/realtime.json?alert=true",
+    "fcasturl": "https://api.caiyunapp.com/v2.5/token/location/daily.json"
+  },
+  "token": ""
+}
