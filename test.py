@@ -73,3 +73,5 @@ img.save("weather.jpg")
 img = img.convert("1")
 img.show()
 img.save("weather2.jpeg", "jpeg")'''
+'''systemd service 中对一些语言的支持不完整，复杂的命令写入脚本然后从systemd service 中启动脚本比较好
+    ，例如，kill -2 在service 文件中就无法发出中断信号，在脚本中就可发出中断信号'''
