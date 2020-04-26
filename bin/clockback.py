@@ -7,7 +7,7 @@ if os.path.exists(libdir):
     sys.path.append(libdir)
 ''''''
 
-from waveshare_epd import epd2in13_V2
+#from waveshare_epd import epd2in13_V2
 from weather import weather
 from screen import screen2in13
 
@@ -19,7 +19,7 @@ stat = 1'''
 anyway = False#for test
 
 
-epd = epd2in13_V2.EPD()  # 实例化墨水屏对象
+#epd = epd2in13_V2.EPD()  # 实例化墨水屏对象
 # logging 只需要设置一次，之后调用只需要import logging即可
 #logging.basicConfig(filename="clock.log", level=logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG
@@ -28,26 +28,27 @@ logging.basicConfig(level=logging.DEBUG
                     , filename='/var/log/clock.log')
 
 try:
-    logging.info("show time")
+    #logging.info("show time")
     #初始化屏幕并清屏
-    logging.info("init and Clear")
-    epd.init(epd.FULL_UPDATE)#初始化和退出睡眠后调用，full_update全刷性
+    #logging.info("init and Clear")
+    #epd.init(epd.FULL_UPDATE)#初始化和退出睡眠后调用，full_update全刷性
     #epd.Clear(0xFF)
 
     # 设置背景图片
     logging.info("init screen")
     screen = screen2in13.Screen()
-    logging.info("draw backimage")
-    screen.drawbackimg()
-    logging.info("set background img")
-    epd.displayPartBaseImage(epd.getbuffer(screen.getimage()))
+    #logging.info("draw backimage")
+    #screen.drawbackimg()
+    #logging.info("set background img")
+    #epd.displayPartBaseImage(epd.getbuffer(screen.getimage()))
 
     #设置为局部刷新后设置局部刷新的图片
-    logging.info("init for part update")
-    epd.init(epd.PART_UPDATE)
+    #logging.info("init for part update")
+    #epd.init(epd.PART_UPDATE)
     logging.info("draw date")
     screen.drawdateimg()
-    epd.displayPartial(epd.getbuffer(screen.getimage()))
+    screen.display()
+    #epd.displayPartial(epd.getbuffer(screen.getimage()))
 
     #第一次启动设置天气
     logging.info("first start to set weather")
@@ -72,7 +73,7 @@ try:
                     logging.info("get weather data")
                     result = weather_thread.get_result()#获取天气数据
                     screen.drawweatherimg(result)
-                epd.displayPartial(epd.getbuffer(screen.getimage()))
+                screen.display()
                 logging.info("jump second loop")
                 break
             logging.info("sleep 1s")
@@ -90,8 +91,10 @@ except IOError as e:
 
 except KeyboardInterrupt:
     logging.info("ctrl + c:")
-    epd.init(epd.FULL_UPDATE)
-    epd.Clear(0xFF)
-    epd2in13_V2.epdconfig.module_exit()
+    #epd.init(epd.FULL_UPDATE)
+    #epd.Clear(0xFF)
+    screen.clean()
+    #epd2in13_V2.epdconfig.module_exit()
+    screen.exit()
     exit()
     ''''''

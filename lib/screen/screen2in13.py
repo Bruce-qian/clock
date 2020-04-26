@@ -1,7 +1,13 @@
 import os
+import sys
 from PIL import Image,ImageDraw,ImageFont
 import logging
 import time
+libdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+if os.path.exists(libdir):
+    sys.path.append(libdir)
+from waveshare_epd import epd2in13_V2
+
 
 height = 250
 width = 122
@@ -22,13 +28,20 @@ class Screen(object):
         self.__font30 = ImageFont.truetype(os.path.join(self.__picdir, 'Font.ttc'), 30)
         self.__font35 = ImageFont.truetype(os.path.join(self.__picdir, 'Font.ttc'), 35)
         self.__font40 = ImageFont.truetype(os.path.join(self.__picdir, 'Font.ttc'), 40)
+        logging.info("init screen")
+        self.__epd = epd2in13_V2.EPD()  # 实例化墨水屏对象
+        logging.info("set full update")
+        self.__epd.init(self.__epd.FULL_UPDATE)  # 设置为全局刷新
+        self.drawbackimg()
+        self.__epd.displayPartBaseImage(self.__epd.getbuffer(self.__image))  # 绘制背景图片
+
 
     def drawbackimg(self):
         '''
-        传入ImageDraw对象
-        画屏幕的基础图片并返回一个ImageDraw对象
+        画屏幕的背景图片
         :return:
         '''
+        logging.info("draw backimg")
         self.__draw.line((0, 45, height, 45), fill=0)#画横线
         self.__draw.line((80, 45, 80, 120), fill=0)#第一条竖线
         self.__draw.line((162, 45, 162, 120), fill=0)#第二条竖线
@@ -39,9 +52,10 @@ class Screen(object):
 
     def drawweatherimg(self, result):
         '''
-        传入Image和ImageDraw对象，绘制天气数据， 网络状态与天气一起更新
+        绘制天气数据， 网络状态与天气一起更新
         :return:
         '''
+        logging.info("draw weatherimg")
         stat = result['stat']
         temperature = result['realtimetem']
         skycon = result['realtimeskycon']
@@ -51,7 +65,7 @@ class Screen(object):
         alert = result['alert']
         # 判断网络是否正常
         if stat:
-            logging.info("network fail")
+            logging.info("network faill")
             netstat = "连接异常"
             self.__draw.rectangle((125, 1, 250, 15), fill=255)
             self.__draw.text((180, 1), netstat, font=self.__font15, fill=0)
@@ -90,20 +104,44 @@ class Screen(object):
 
     def drawtimeimg(self):
         '''
-        传入ImageDraw对象，绘制时间数据并返回ImageDraw对象
+        绘制时间数据
         :return:
         '''
+        logging.info("draw timeimg")
         self.__draw.rectangle((1, 1, 100, 43), fill=255)
         self.__draw.text((1, 1), time.strftime('%H:%M'), font=self.__font40, fill=0)
 
     def drawdateimg(self):
         '''
-        传入ImageDraw对象， 绘制日期数据并返回ImageDraw对象
+        绘制日期数据
         :return:
         '''
+        logging.info("draw dateimg")
         self.__draw.rectangle((125, 16, 250, 43), fill=255)
         self.__draw.text((125, 16), time.strftime('%Y-%m-%d'), font=self.__font24, fill=0)
 
     def getimage(self):
         logging.info("get image")
         return self.__image
+
+    def display(self):
+        logging.info("set part update and display")
+        self.__epd.init(self.__epd.PART_UPDATE)  # 设置局部刷新
+        self.__epd.displayPartial(self.__epd.getbuffer(self.__image))
+
+    def clean(self):
+        logging.info("set full update and clean")
+        self.__epd.init(self.__epd.FULL_UPDATE)
+        self.__epd.Clear(0xFF)
+
+    def exit(self):
+        logging.info("exit device")
+        epd2in13_V2.epdconfig.module_exit()
+
+
+if __name__ == "__main__":
+    screen = Screen()
+    screen.drawdateimg()
+    screen.display()
+    screen.drawtimeimg()
+    screen.display()
